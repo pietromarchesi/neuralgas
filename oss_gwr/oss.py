@@ -2,11 +2,10 @@ from __future__ import division
 
 import logging
 
+import copy
 import numpy as np
 import networkx as nx
 import scipy.spatial.distance as sp
-
-# TODO: Python 3 compatibility
 
 class oss_gwr():
 
@@ -22,20 +21,20 @@ class oss_gwr():
         self.kappa    = kappa
         self.lab_thr  = lab_thr
         self.max_age  = max_age
-        # TODO: nodes need to die if they are too old
 
 
     def _initialize(self, X):
+
         logging.info('Initializing the neural gas.')
         self.G = nx.Graph()
         # TODO: initialize empty labels?
         draw = np.random.choice(X.shape[0], size=2, replace=False)
         self.G.add_node(0,attr_dict={'pos' : X[draw[0],:],
                                      'fir' : 1,
-                                     'lab' : None})
+                                     'lab' : -1})
         self.G.add_node(1,attr_dict={'pos' : X[draw[1],:],
                                      'fir' : 1,
-                                     'lab' : None})
+                                     'lab' : -1})
 
 
     def _get_best_matching(self, x):
@@ -43,8 +42,8 @@ class oss_gwr():
 
         dist = sp.cdist(x, pos, metric='euclidean')
         sorted_dist = np.argsort(dist)
-        b = sorted_dist[0,0]
-        s = sorted_dist[0,1]
+        b = self.G.nodes()[sorted_dist[0,0]]
+        s = self.G.nodes()[sorted_dist[0,1]]
         return b, s
 
 
@@ -62,7 +61,7 @@ class oss_gwr():
     def _add_node(self, x, b, s):
         r = max(self.G.nodes()) + 1
         pos_r = 0.5 * (x + self.G.node[b]['pos'])[0,:]
-        self.G.add_node(r, attr_dict={'pos' : pos_r, 'fir' : 1, 'lab' : None})
+        self.G.add_node(r, attr_dict={'pos' : pos_r, 'fir' : 1, 'lab' : -1})
         self.G.remove_edge(b,s)
         self.G.add_edge(r, b, attr_dict={'age':0})
         self.G.add_edge(r, s, attr_dict={'age':0})
@@ -71,14 +70,14 @@ class oss_gwr():
 
     def _update_network(self, x, b):
         dpos_b = self.eps_b * self.G.node[b]['fir']*(x - self.G.node[b]['pos'])
-        self.G.node[b]['pos'] += dpos_b[0,:]
+        self.G.node[b]['pos'] = self.G.node[b]['pos'] + dpos_b[0,:]
 
         neighbors = self.G.neighbors(b)
         for n in neighbors:
             # update the position of the neighbors
             dpos_n = self.eps_n * self.G.node[n]['fir'] * (
                      x - self.G.node[n]['pos'])
-            self.G.node[n]['pos'] += dpos_n[0,:]
+            self.G.node[n]['pos'] = self.G.node[n]['pos'] + dpos_n[0,:]
 
             # increase the age of all edges connected to b
             self.G.edge[b][n]['age'] += 1
@@ -86,13 +85,13 @@ class oss_gwr():
 
     def _update_firing(self, b):
         dfir_b = self.tau_b * self.kappa*(1-self.G.node[b]['fir']) - self.tau_b
-        self.G.node[b]['fir'] += dfir_b
+        self.G.node[b]['fir'] = self.G.node[b]['fir']  + dfir_b
 
         neighbors = self.G.neighbors(b)
         for n in neighbors:
             dfir_n = self.tau_n * self.kappa * \
                      (1-self.G.node[b]['fir']) - self.tau_n
-            self.G.node[n]['fir'] += dfir_n
+            self.G.node[n]['fir'] = self.G.node[n]['fir'] + dfir_n
 
 
     def _assign_label(self, r, e, b):
@@ -121,17 +120,16 @@ class oss_gwr():
         for e in self.G.edges():
             if self.G[e[0]][e[1]]['age'] > self.max_age:
                 self.G.remove_edge(*e)
-                # TODO: ensure that looking only at nodes where edges have been \
-                # removed is ok
-                for node in e:
+                for node in self.G.nodes():
                     if len(self.G.edges(node)) == 0:
+                        logging.debug('Removing node %s', str(node))
                         self.G.remove_node(node)
 
     def _check_stopping_criterion(self):
         # TODO: implement this
         pass
 
-    def _training_step(self, x, e = None):
+    def _training_step(self, x, e = -1):
         # TODO: do not recompute all positions at every iteration
         b, s = self._get_best_matching(x)
         self._make_link(b, s)
@@ -142,14 +140,15 @@ class oss_gwr():
                       'Firing: %s', str(b), str(s), str(np.round(act,3)),
                       str(np.round(fir,3)))
         if act < self.act_thr and fir < self.fir_thr:
-            logging.debug('GENERATE NODE')
             r = self._add_node(x, b, s)
+            logging.debug('GENERATE NODE %s', self.G.node[r])
             self._assign_label(r, e, b)
         else:
             self._update_network(x, b)
             self._update_label(b, e, s)
         self._update_firing(b)
         self._remove_old_edges()
+
 
     def _predict_observation(self, x):
         b, s = self._get_best_matching(x)
@@ -166,6 +165,7 @@ class oss_gwr():
                 e = y[i]
                 self._training_step(x, e)
                 self._check_stopping_criterion()
+        logging.info('Training ended - Network size: %s', len(self.G.nodes()))
 
     def predict(self, X):
         y_pred = np.zeros(X.shape[0], dtype=int)

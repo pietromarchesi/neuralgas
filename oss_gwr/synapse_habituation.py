@@ -9,7 +9,7 @@ gwr.G = nx.Graph()
 gwr.G.add_node(0, attr_dict={'pos': np.array([1,1]), 'fir' : 1})
 gwr.G.add_node(1, attr_dict={'pos': np.array([1,1]), 'fir' : 1})
 gwr.G.add_edge(0, 1)
-fir, fir_n = [], []
+fir, fir_n = [1], [1]
 
 for i in range(10):
     gwr._update_firing(0)
