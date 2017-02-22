@@ -27,58 +27,66 @@ class oss_h_unimodal():
                               'lab_thr' : 0.5,
                               'max_age' : 100}
 
-        self.H = [oss_gwrd() for _ in range(self.layers)]
+        self.H = [oss_gwr() for _ in range(self.layers)]
         for i in range(self.layers):
             self.H[i].G = nx.Graph()
 
-    def _get_trajectories_from_previous(self, X, layer, y = None):
+    def _get_trajectories_from_previous(self, X, layer):
 
-        if hasattr(self.lab_ratio, '__len__'):
-            lab_ratio = self.lab_ratio[layer]
-        else:
-            lab_ratio = self.lab_ratio
         ws = self.window_size[layer]
         Xt = np.zeros([X.shape[0]-(ws-1), X.shape[1]*ws])
-        yt = np.zeros(X.shape[0]-(ws-1))
         for i in range((ws-1), X.shape[0]):
 
             x = np.zeros([0,])
-            e = np.zeros([0,])
             for j in range(i+1-ws,i+1):
                 if layer == 0:
                     p = X[j,0]
-                    e = np.hstack((e, y[j]))
                 else:
                     b, s = self.H[layer - 1]._get_best_matching(X[j,np.newaxis])
                     p = self.H[layer - 1].G.node[b]['pos']
-                    e = np.hstack((e,self.H[layer - 1].G.node[b]['lab']))
                 x = np.hstack((x,p))
             Xt[i+1-ws, :] = x
-            c = collections.Counter(e)
-            if c.most_common()[0][1] >= ws * lab_ratio:
-                yt[i+1-ws] = c.most_common()[0][0]
-            else:
-                yt[i + 1 - ws] = -1
-        return Xt, yt
+        return Xt
 
-    def _get_activation_trajectories(self, X, layer, y):
-
+    def _get_activation_trajectories(self, X, layer):
         for i in range(layer+1):
-            X, y = self._get_trajectories_from_previous(X,i, y = y)
-        return X, y
+            X = self._get_trajectories_from_previous(X,i)
+        return X
 
     def train(self, X, y):
         for k in range(self.layers + 1):
-            X, y = self._get_activation_trajectories(X, i, y)
+            X = self._get_activation_trajectories(X, k)
             self.H[k].train(X, y)
 
     def train_test_2L(self, X, y):
 
-        X, y = self._get_activation_trajectories(X, 0, y)
-        self.H[0].train(X, y, n_epochs=20)
+        X = _propagate_trajectories(X, ws = 1)
+        self.H[0].train(X, n_epochs=20)
+        X1 = _propagate_trajectories(X, oss = self.H[0])
+        self.H[1].train(X, n_epochs=20)
+
+# TODO oss is not appropriate, do gwr and oss_gwr (instead of adding supervised)
 
 
+def _propagate_trajectories(self, X, oss = None, ws = 3):
+    Xt = np.zeros([X.shape[0]-(ws-1), X.shape[1]*ws])
+    for i in range((ws-1), X.shape[0]):
+
+        x = np.zeros([0,])
+        for j in range(i+1-ws,i+1):
+            if oss is None:
+                p = X[j,0]
+            else:
+                b, s = oss._get_best_matching(X[j,np.newaxis])
+                p = oss.G.node[b]['pos']
+            x = np.hstack((x,p))
+        Xt[i+1-ws, :] = x
+    return Xt
+
+# TODO introduce a random seed to initialize the
 
 
+class oss_h_multimodal():
+    # still unsupervised
 
-
+    def train(self, X):

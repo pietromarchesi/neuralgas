@@ -31,7 +31,7 @@ class oss_gwr():
         # TODO: initialize empty labels?
         draw = np.random.choice(X.shape[0], size=2, replace=False)
         self.G.add_node(0,attr_dict={'pos' : X[draw[0],:],
-                                     'fir' : 1)
+                                     'fir' : 1})
         self.G.add_node(1,attr_dict={'pos' : X[draw[1],:],
                                      'fir' : 1})
 
