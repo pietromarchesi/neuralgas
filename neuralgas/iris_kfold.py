@@ -4,7 +4,7 @@ import sklearn.datasets
 import sklearn.metrics
 import sklearn.model_selection
 
-from oss_gwr.oss import oss_gwr_supervised
+from oss_gwr.oss_gwr import oss_gwr
 
 iris = sklearn.datasets.load_iris()
 X = iris.data
@@ -18,7 +18,7 @@ for train_index, test_index in kf.split(X):
     y_train, y_test = y[train_index], y[test_index]
     # here you can kill the labels of y_train
 
-    gwr = oss_gwr_supervised()
+    gwr = oss_gwr()
     gwr.train(X_train, y_train)
     y_pred = gwr.predict(X_test)
     a = sklearn.metrics.accuracy_score(y_test,y_pred)

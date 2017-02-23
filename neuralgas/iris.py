@@ -6,7 +6,7 @@ import sklearn.metrics
 import networkx as nx
 import seaborn as sns
 import sklearn.datasets
-from oss_gwr.oss import oss_gwr_supervised
+from oss_gwr.oss_gwr import oss_gwr
 import matplotlib.pyplot as plt
 
 iris = sklearn.datasets.load_iris()
@@ -23,7 +23,7 @@ X_test = X[~mask,:]
 y_test = y[~mask]
 
 logging.basicConfig(format='%(levelname)s:%(message)s', level=logging.DEBUG)
-oss = oss_gwr_supervised(act_thr=0.45)
+oss = oss_gwr(act_thr=0.45)
 oss.train(X_train, y_train, n_epochs = 20)
 y_pred = oss.predict(X_test)
 

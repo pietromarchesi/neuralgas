@@ -3,7 +3,7 @@ from __future__ import division
 import unittest
 import numpy as np
 import networkx as nx
-from oss_gwr.oss import oss_gwr_supervised
+from neuralgas.oss_gwr import oss_gwr
 
 class TestOssGwrFunctions(unittest.TestCase):
 
@@ -15,7 +15,7 @@ class TestOssGwrFunctions(unittest.TestCase):
 
 
     def test_get_best_matching(self):
-        gwr = oss_gwr_supervised()
+        gwr = oss_gwr()
         gwr.G = nx.Graph()
         gwr.G.add_node(0,attr_dict={'pos' : np.array([1, 1])})
         gwr.G.add_node(3,attr_dict={'pos' : np.array([2, 1])})
@@ -30,7 +30,7 @@ class TestOssGwrFunctions(unittest.TestCase):
 
 
     def test_add_node(self):
-        gwr = oss_gwr_supervised(fir_thr=1.1, act_thr=1.1)
+        gwr = oss_gwr(fir_thr=1.1, act_thr=1.1)
         gwr.G = nx.Graph()
         gwr.G.add_node(0,attr_dict={'pos' : np.array([0, 0]),
                                     'fir' : 1,
@@ -47,7 +47,7 @@ class TestOssGwrFunctions(unittest.TestCase):
 
 
     def test_label_propagation_coeff(self):
-        gwr = oss_gwr_supervised()
+        gwr = oss_gwr()
         gwr.G = nx.Graph()
         gwr.G.add_node(0,attr_dict={'pos' : np.array([0, 0]),
                                     'fir' : 1,
@@ -65,7 +65,7 @@ class TestOssGwrFunctions(unittest.TestCase):
 
 
     def test_update_network(self):
-        gwr = oss_gwr_supervised(eps_b=1, eps_n=1)
+        gwr = oss_gwr(eps_b=1, eps_n=1)
         gwr.G = nx.Graph()
         gwr.G.add_node(0,attr_dict={'pos' : np.array([0, 0]),
                                     'fir' : 1,
@@ -82,7 +82,7 @@ class TestOssGwrFunctions(unittest.TestCase):
 
 
     def test_remove_old_edges(self):
-        gwr = oss_gwr_supervised(eps_b=1, eps_n=1, max_age=15)
+        gwr = oss_gwr(eps_b=1, eps_n=1, max_age=15)
         gwr.G = nx.Graph()
         gwr.G.add_node(0,attr_dict={'pos' : np.array([0, 0]),
                                     'fir' : 1,
@@ -116,7 +116,7 @@ class TestOssGwrFunctions(unittest.TestCase):
         np.testing.assert_array_equal(edges, [(0, 3)])
 
     def test_update_label(self):
-        gwr = oss_gwr_supervised(eps_b=1, eps_n=1, max_age=15)
+        gwr = oss_gwr(eps_b=1, eps_n=1, max_age=15)
         gwr.G = nx.Graph()
         gwr.G.add_node(0,attr_dict={'pos' : np.array([0, 0]),
                                     'fir' : 0.1,

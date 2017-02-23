@@ -2,7 +2,7 @@ from __future__ import division
 
 import unittest
 import numpy as np
-from oss_gwr.oss_h import oss_h_unimodal
+from neuralgas.oss_gwr_h import gwr_h_unimodal
 
 class TestOssGwrHFunctions(unittest.TestCase):
 
@@ -14,7 +14,7 @@ class TestOssGwrHFunctions(unittest.TestCase):
                       [5],
                       [6]])
 
-        ossh = oss_h_unimodal(window_size=[1,2,3], lab_ratio=2/3)
+        ossh = gwr_h_unimodal(window_size=[1, 2, 3], lab_ratio=2 / 3)
         ossh.H[0].G.add_node(0, attr_dict={'pos': np.array([1]),
                                            'lab': 1})
         ossh.H[0].G.add_node(1, attr_dict={'pos': np.array([4]),
@@ -27,13 +27,13 @@ class TestOssGwrHFunctions(unittest.TestCase):
                                            'lab': 2})
 
         tr0_fp  = ossh._get_trajectories_from_previous(X,0)
-        tr0     = ossh._get_activation_trajectories(X,0)
+        tr0     = ossh._get_activation_trajectories_old(X, 0)
         tr0_test   = X
         np.testing.assert_array_equal(tr0_fp, tr0)
         np.testing.assert_array_equal(tr0, tr0_test)
 
         tr1_fp   = ossh._get_trajectories_from_previous(tr0,1)
-        tr1  = ossh._get_activation_trajectories(X,1)
+        tr1  = ossh._get_activation_trajectories_old(X, 1)
         tr1_test = np.array([[1, 1],
                              [1, 4],
                              [4, 4],
@@ -43,7 +43,7 @@ class TestOssGwrHFunctions(unittest.TestCase):
         np.testing.assert_array_equal(tr1, tr1_test)
 
         tr2_fp   = ossh._get_trajectories_from_previous(tr1, 2)
-        tr2  = ossh._get_activation_trajectories(X,2)
+        tr2  = ossh._get_activation_trajectories_old(X, 2)
         tr2_test = np.array([[1, 1, 1, 1, 5, 7],
                              [1, 1, 5, 7, 5, 7],
                              [5, 7, 5, 7, 5, 7]])

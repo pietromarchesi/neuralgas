@@ -8,11 +8,11 @@ import networkx as nx
 import scipy.spatial.distance as sp
 
 
-class oss_gwr():
+class gwr():
 
     def __init__(self, act_thr = 0.35, fir_thr = 0.1, eps_b = 0.1,
                  eps_n = 0.01, tau_b = 0.3, tau_n = 0.1, kappa = 1.05,
-                 lab_thr = 0.5, max_age = 100):
+                 lab_thr = 0.5, max_age = 100, random_state = None):
         self.act_thr  = act_thr
         self.fir_thr  = fir_thr
         self.eps_b    = eps_b
@@ -22,7 +22,8 @@ class oss_gwr():
         self.kappa    = kappa
         self.lab_thr  = lab_thr
         self.max_age  = max_age
-
+        if random_state is not None:
+            np.random.seed(random_state)
 
     def _initialize(self, X):
 
@@ -35,10 +36,12 @@ class oss_gwr():
         self.G.add_node(1,attr_dict={'pos' : X[draw[1],:],
                                      'fir' : 1})
 
+    def get_positions(self):
+        pos = np.array(nx.get_node_attributes(self.G, 'pos').values())
+        return pos
 
     def _get_best_matching(self, x):
-        pos = np.array(nx.get_node_attributes(self.G, 'pos').values())
-
+        pos = self.get_positions()
         dist = sp.cdist(x, pos, metric='euclidean')
         sorted_dist = np.argsort(dist)
         b = self.G.nodes()[sorted_dist[0,0]]
@@ -138,7 +141,7 @@ class oss_gwr():
 
 
 
-class oss_gwr_supervised(oss_gwr):
+class oss_gwr(gwr):
 
 
     def _initialize(self, X):

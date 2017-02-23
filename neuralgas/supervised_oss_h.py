@@ -4,7 +4,7 @@ import logging
 import numpy as np
 import networkx as nx
 import collections
-from oss_gwr.oss import oss_gwr
+from oss_gwr.oss_gwr import gwr
 
 
 class oss_h_unimodal():
@@ -27,7 +27,7 @@ class oss_h_unimodal():
                               'lab_thr' : 0.5,
                               'max_age' : 100}
 
-        self.H = [oss_gwr() for _ in range(self.layers)]
+        self.H = [gwr() for _ in range(self.layers)]
         for i in range(self.layers):
             self.H[i].G = nx.Graph()
 
@@ -90,7 +90,7 @@ from __future__ import division
 
 import unittest
 import numpy as np
-from oss_gwr.oss_h import oss_h_unimodal
+from oss_gwr.oss_gwr_h import gwr_h_unimodal
 
 class TestOssGwrHFunctions(unittest.TestCase):
 
