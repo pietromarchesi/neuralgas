@@ -12,7 +12,8 @@ class gwr():
 
     def __init__(self, act_thr = 0.35, fir_thr = 0.1, eps_b = 0.1,
                  eps_n = 0.01, tau_b = 0.3, tau_n = 0.1, kappa = 1.05,
-                 lab_thr = 0.5, max_age = 100, random_state = None):
+                 lab_thr = 0.5, max_age = 100, max_size = 100,
+                 random_state = None):
         self.act_thr  = act_thr
         self.fir_thr  = fir_thr
         self.eps_b    = eps_b
@@ -22,6 +23,7 @@ class gwr():
         self.kappa    = kappa
         self.lab_thr  = lab_thr
         self.max_age  = max_age
+        self.max_size = max_size
         if random_state is not None:
             np.random.seed(random_state)
 
@@ -119,7 +121,8 @@ class gwr():
                       'Network activation: %s \n'
                       'Firing: %s', str(b), str(s), str(np.round(act,3)),
                       str(np.round(fir,3)))
-        if act < self.act_thr and fir < self.fir_thr:
+        if act < self.act_thr and fir < self.fir_thr \
+            and len(self.G.nodes()) < self.max_size:
             r = self._add_node(x, b, s)
             logging.debug('GENERATE NODE %s', self.G.node[r])
         else:
