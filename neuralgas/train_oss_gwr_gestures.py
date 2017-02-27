@@ -21,6 +21,8 @@ y = y[dif // 2 : -dif // 2]
 
 vel = a1_va3
 
+pars = {'act_thr'}
+
 g1 = gwr_h_unimodal(n_layers=2,window_size=[3,3])
 g2 = gwr_h_unimodal(n_layers=2, window_size=[3,3])
 
@@ -35,8 +37,7 @@ y_ = -np.ones(X_.shape[0])
 for i in range(5,y.shape[0]):
     c = collections.Counter(y[i-5:i])
     lab = c.most_common()[0][0]
-    if c.most_common()[0][1] > 3:
-        y_[i-5] = lab
+    y_[i-5] = lab
 
 acc = []
 kf = sklearn.model_selection.KFold(n_splits=10)

@@ -27,44 +27,11 @@ class gwr_h_unimodal():
         self.window_size = window_size
         self.lab_ratio   = lab_ratio
 
-        self.standard_pars = {'act_thr'      : 0.35,
-                              'fir_thr'      : 0.1,
-                              'eps_b'        : 0.1,
-                              'eps_n'        : 0.01,
-                              'tau_b'        : 0.3,
-                              'tau_n'        : 0.1,
-                              'kappa'        : 1.05,
-                              'lab_thr'      : 0.5,
-                              'max_age'      : 100,
-                              'random_state' : None}
-        self.gwr_pars = []
-        for i in range(self.n_layers):
-            self.gwr_pars.append(copy.deepcopy(self.standard_pars))
-            try:
-                par_set = gwr_pars[i]
-                for par in par_set.keys():
-                    self.gwr_pars[i][par] = par_set[par]
-            except IndexError:
-                pass
+        if isinstance(gwr_pars, list):
+            self.H = [gwr(**gwr_pars[i]) for i in range(len(gwr_pars))]
+        elif isinstance(gwr_pars, dict)
+            self.H = [gwr(**gwr_pars) for _ in range(self.n_layers)]
 
-        self.H = [gwr(**self.gwr_pars[i]) for i in range(self.n_layers)]
-
-    # def _get_trajectories_from_previous(self, X, layer):
-    #     ws = self.window_size[layer]
-    #     Xt = np.zeros([X.shape[0]-(ws-1), X.shape[1]*ws])
-    #     for i in range((ws-1), X.shape[0]):
-    #
-    #         x = np.zeros([0,])
-    #         for j in range(i+1-ws,i+1):
-    #             if layer == 0:
-    #                 p = X[j,0]
-    #             else:
-    #                 b, s = self.H[layer - 1]._get_best_matching(X[j,np.newaxis])
-    #                 p = self.H[layer - 1].G.node[b]['pos']
-    #             x = np.hstack((x,p))
-    #         Xt[i+1-ws, :] = x
-    #     return Xt
-    #
 
     def _get_activation_trajectories(self, X):
 
