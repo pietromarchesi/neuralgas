@@ -7,6 +7,7 @@ import numpy as np
 import networkx as nx
 import scipy.spatial.distance as sp
 
+# TODO should have a _get_activation_trajectories method too
 
 class gwr():
 
