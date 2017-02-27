@@ -108,7 +108,16 @@ for k in ran:
         X_train_ = np.hstack((pos_train_, vel_train_))
         X_train_ = _propagate_trajectories(X_train_, ws=5)
         X_train_ = _propagate_trajectories(X_train_, ws=5)
+
+        pos_test_ = _propagate_trajectories(pos_test, ws=5)
+        vel_test_ = _propagate_trajectories(vel_test, ws=5)
+        X_test_ = np.hstack((pos_test_, vel_test_))
+        X_test_ = _propagate_trajectories(X_test_, ws=5)
+        X_test_ = _propagate_trajectories(X_test_, ws=5)
+
         gwr_super = oss_gwr(**pars)
+        gwr_super.train(X_train, y_train, n_epochs=n_epochs)
+
         y_pred = gwr_super.predict(X_test)
         a = sklearn.metrics.accuracy_score(y_test, y_pred)
         ac2.append(a)
