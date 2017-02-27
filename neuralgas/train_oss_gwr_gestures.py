@@ -21,10 +21,10 @@ y = y[dif // 2 : -dif // 2]
 
 vel = a1_va3
 
-pars = {'act_thr'}
+pars = {'act_thr' : 0.75}
 
-g1 = gwr_h_unimodal(n_layers=2,window_size=[3,3])
-g2 = gwr_h_unimodal(n_layers=2, window_size=[3,3])
+g1 = gwr_h_unimodal(n_layers=2,window_size=[3,3], gwr_pars=pars)
+g2 = gwr_h_unimodal(n_layers=2, window_size=[3,3], gwr_pars=pars)
 
 pos_ = g1.train(pos,n_epochs=20)
 vel_ = g2.train(vel,n_epochs=20)

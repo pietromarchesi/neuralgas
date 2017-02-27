@@ -19,17 +19,19 @@ class gwr_h_unimodal():
         is the output trajectory already windowed.
         '''
 
-
-        # TODO if pars are passed as a single dictionary (not wrapped in a
-        # list, they should apply to all the networks)
-
         self.n_layers    = n_layers
         self.window_size = window_size
         self.lab_ratio   = lab_ratio
 
         if isinstance(gwr_pars, list):
-            self.H = [gwr(**gwr_pars[i]) for i in range(len(gwr_pars))]
-        elif isinstance(gwr_pars, dict)
+            self.H = []
+            for i in range(self.n_layers):
+                try:
+                    par = gwr_pars[i]
+                    self.H.append(gwr(**par))
+                except IndexError:
+                    self.H.append(gwr())
+        elif isinstance(gwr_pars, dict):
             self.H = [gwr(**gwr_pars) for _ in range(self.n_layers)]
 
 
