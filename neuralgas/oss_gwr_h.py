@@ -7,6 +7,9 @@ import networkx as nx
 import collections
 from neuralgas.oss_gwr import gwr
 
+'''
+Incomplete. Should provide the classes to build chains of neural gases.
+'''
 
 class gwr_h_unimodal():
 

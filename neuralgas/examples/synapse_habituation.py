@@ -2,9 +2,9 @@ import numpy as np
 import networkx as nx
 import matplotlib.pyplot as plt
 
-from oss_gwr.oss_gwr import oss_gwr
+from neuralgas.oss_gwr import gwr
 
-gwr = oss_gwr(tau_b=0.3, tau_n=0.1, kappa=1.05)
+gwr = gwr(tau_b=0.3, tau_n=0.1, kappa=1.05)
 gwr.G = nx.Graph()
 gwr.G.add_node(0, attr_dict={'pos': np.array([1,1]), 'fir' : 1})
 gwr.G.add_node(1, attr_dict={'pos': np.array([1,1]), 'fir' : 1})

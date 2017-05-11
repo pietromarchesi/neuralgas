@@ -76,57 +76,70 @@ def sequence_labels(y, w = 7):
         y_[i-n] = lab
     return y_
 
-acc = []
-ac2 = []
+
 n_epochs = 20
-ran = [10,40,70,100]
+ran = range(10,110,10)
 compare = True
+N = 20
 
-for k in ran:
+acc, ac2 = np.zeros([N, len(ran)]), np.zeros([N,len(ran)])
 
-    y_train = sequence_labels(y_train, w=13)
-    y_test = sequence_labels(y_test, w=13)
+for j in range(N):
+    for k in range(len(ran)):
+        i = ran[k]
+        y_train_ = sequence_labels(y_train, w=13)
+        y_test_ = sequence_labels(y_test, w=13)
 
-    g1, g2, g3 = train_unsupervised_hierarchy(pos_train,  vel_train, n_epochs=n_epochs)
-    X_train = propagate_through_hierarchy(pos_train, vel_train, g1, g2, g3)
-    X_test  = propagate_through_hierarchy(pos_test, vel_test, g1, g2, g3)
-
-    gwr_super = oss_gwr(**pars)
-
-    s = k * X_train.shape[0] // 100
-    ind2 = np.random.choice(X_train.shape[0], size=s, replace=False)
-    y_train[ind2] = -1
-    gwr_super.train(X_train, y_train, n_epochs=n_epochs)
-
-    y_pred = gwr_super.predict(X_test)
-    a = sklearn.metrics.accuracy_score(y_test,y_pred)
-    acc.append(a)
-
-    if compare:
-        pos_train_ = _propagate_trajectories(pos_train, ws=5)
-        vel_train_ = _propagate_trajectories(vel_train, ws=5)
-        X_train_ = np.hstack((pos_train_, vel_train_))
-        X_train_ = _propagate_trajectories(X_train_, ws=5)
-        X_train_ = _propagate_trajectories(X_train_, ws=5)
-
-        pos_test_ = _propagate_trajectories(pos_test, ws=5)
-        vel_test_ = _propagate_trajectories(vel_test, ws=5)
-        X_test_ = np.hstack((pos_test_, vel_test_))
-        X_test_ = _propagate_trajectories(X_test_, ws=5)
-        X_test_ = _propagate_trajectories(X_test_, ws=5)
+        g1, g2, g3 = train_unsupervised_hierarchy(pos_train,  vel_train, n_epochs=n_epochs)
+        X_train = propagate_through_hierarchy(pos_train, vel_train, g1, g2, g3)
+        X_test  = propagate_through_hierarchy(pos_test, vel_test, g1, g2, g3)
 
         gwr_super = oss_gwr(**pars)
-        gwr_super.train(X_train, y_train, n_epochs=n_epochs)
+
+        s = i * X_train.shape[0] // 100
+        ind2 = np.random.choice(y_train_.shape[0], size=s, replace=False)
+        mask = np.zeros_like(y_train_, dtype=bool)
+        mask[ind2] = True
+        y_train_[~mask] = -1
+
+        gwr_super.train(X_train, y_train_, n_epochs=n_epochs)
 
         y_pred = gwr_super.predict(X_test)
-        a = sklearn.metrics.accuracy_score(y_test, y_pred)
-        ac2.append(a)
+        a = sklearn.metrics.accuracy_score(y_test_,y_pred)
+        acc[j,k] = a
 
-f, ax = plt.subplots(1,1)
-ax.plot(acc, label = 'GWR')
+        if compare:
+            pos_train_ = _propagate_trajectories(pos_train, ws=5)
+            vel_train_ = _propagate_trajectories(vel_train, ws=5)
+            X_train_ = np.hstack((pos_train_, vel_train_))
+            X_train_ = _propagate_trajectories(X_train_, ws=5)
+            X_train_ = _propagate_trajectories(X_train_, ws=5)
+
+            pos_test_ = _propagate_trajectories(pos_test, ws=5)
+            vel_test_ = _propagate_trajectories(vel_test, ws=5)
+            X_test_ = np.hstack((pos_test_, vel_test_))
+            X_test_ = _propagate_trajectories(X_test_, ws=5)
+            X_test_ = _propagate_trajectories(X_test_, ws=5)
+
+            gwr_super = oss_gwr(**pars)
+            gwr_super.train(X_train, y_train_, n_epochs=n_epochs)
+
+            y_pred = gwr_super.predict(X_test)
+            a = sklearn.metrics.accuracy_score(y_test_, y_pred)
+            ac2[j,k] = a
+
+Acc = acc.mean(axis=0)
+Ac2 = ac2.mean(axis=0)
+ind = np.arange(len(ran))
+
+f, ax = plt.subplots(1,1, figsize = [8,6])
+ax.errorbar(ind, Acc, yerr=acc.std(axis=0), label = 'Hierarchical')
+ax.errorbar(ind, Ac2, yerr=ac2.std(axis=0), label = 'Single gas')
+ax.set_xticks(ind)
 ax.set_xticklabels(ran)
 # ax.legend()
 ax.set_title('Classification accuracy')
-ax.set_xlabl('% of labelled samples')
-
-
+ax.set_xlabel('% of labelled samples')
+plt.legend()
+#f.savefig('./plots/hierarchical_vs_single_gas_20epochs_20iters.eps',dpi=1000)
+# TODO stop training based on some convergence criterion

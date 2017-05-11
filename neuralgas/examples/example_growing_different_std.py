@@ -6,16 +6,23 @@ import matplotlib.pyplot as plt
 
 from neuralgas.oss_gwr import gwr
 
+'''
+Growing two 2D neural gases to learn the distribution of Gaussian data
+with different standard deviations. The visualization shows only the positions
+of the neurons (and not the connections).
+'''
+
+
 iris = sklearn.datasets.load_iris()
 X1 = np.random.normal(loc = 2, scale = 1.0, size=[1000,2])
 X2 = np.random.normal(loc = 2, scale = 2, size=[1000,2])
 
 g1 = gwr(act_thr=0.75, random_state=None, max_size=30)
-g1.train(X1, n_epochs=30)
+g1.train(X1, n_epochs=3)
 Xg1 = g1.get_positions()
 
 g2 = gwr(act_thr=0.75, random_state=None, max_size=30)
-g2.train(X2, n_epochs=30)
+g2.train(X2, n_epochs=3)
 Xg2 = g2.get_positions()
 
 marks=8

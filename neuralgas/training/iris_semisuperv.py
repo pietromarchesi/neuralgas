@@ -8,7 +8,7 @@ import sklearn.datasets
 import sklearn.metrics
 import matplotlib.pyplot as plt
 
-from oss_gwr.oss_gwr import oss_gwr
+from neuralgas.oss_gwr import oss_gwr
 
 logging.basicConfig(format='%(levelname)s:%(message)s', level=logging.INFO)
 
@@ -19,7 +19,7 @@ y = iris.target
 N = 100
 ran = range(0,110,10)
 acc = np.zeros([N,len(ran)])
-
+n_epochs = 5
 graph = np.zeros([2, N,len(ran)])
 
 for j in range(N):
@@ -51,7 +51,7 @@ for j in range(N):
 
         # classify
         gwr = oss_gwr(act_thr=0.75, max_age=500, kappa=1.05)
-        gwr.train(X_train, y_train, n_epochs=20)
+        gwr.train(X_train, y_train, n_epochs=n_epochs)
         y_pred = gwr.predict(X_test)
         a = sklearn.metrics.accuracy_score(y_test,y_pred)
         acc[j,k] = a

@@ -11,6 +11,15 @@ import scipy.spatial.distance as sp
 
 class gwr():
 
+    '''
+    Growing When Required (GWR) Neural Gas, after [1]. Constitutes the base class
+    for the Online Semi-supervised (OSS) GWR.
+
+    [1] Parisi, G. I., Tani, J., Weber, C., & Wermter, S. (2017).
+    Emergence of multimodal action representations from neural network
+    self-organization. Cognitive Systems Research, 43, 208-221.
+    '''
+
     def __init__(self, act_thr = 0.35, fir_thr = 0.1, eps_b = 0.1,
                  eps_n = 0.01, tau_b = 0.3, tau_n = 0.1, kappa = 1.05,
                  lab_thr = 0.5, max_age = 100, max_size = 100,
@@ -147,6 +156,14 @@ class gwr():
 
 class oss_gwr(gwr):
 
+    '''
+    Online Semi-supervised Growing When Required Neural Gas, after [1].
+    Adds the label propagation methods to the `gwr` class.
+
+    [1] Parisi, G. I., Tani, J., Weber, C., & Wermter, S. (2017).
+    Emergence of multimodal action representations from neural network
+    self-organization. Cognitive Systems Research, 43, 208-221.
+    '''
 
     def _initialize(self, X):
 
@@ -243,7 +260,7 @@ class oss_gwr(gwr):
 
 
     # TODO link up hierarchically
-    # TODO parameter grid search
+    # TODO implement a grid search
 
 
 

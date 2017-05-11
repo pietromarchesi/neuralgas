@@ -6,13 +6,18 @@ import sklearn.metrics
 import networkx as nx
 import seaborn as sns
 import sklearn.datasets
-from oss_gwr.oss_gwr import oss_gwr
+from neuralgas.oss_gwr import oss_gwr
 import matplotlib.pyplot as plt
+
+'''
+Using the OSS-GWR to classify the Iris dataset.
+'''
 
 iris = sklearn.datasets.load_iris()
 X = iris.data
 y = iris.target
 
+# split data into training and testing
 ind = np.random.choice(X.shape[0], size = 100, replace=False)
 mask = np.zeros_like(y,dtype = bool)
 mask[ind] = True

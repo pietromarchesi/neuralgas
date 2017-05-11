@@ -4,7 +4,7 @@ import sklearn.datasets
 import sklearn.metrics
 import sklearn.model_selection
 
-from oss_gwr.oss_gwr import oss_gwr
+from neuralgas.oss_gwr import oss_gwr
 
 iris = sklearn.datasets.load_iris()
 X = iris.data
